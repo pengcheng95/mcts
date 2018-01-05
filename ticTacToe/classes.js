@@ -5,6 +5,10 @@ class Node {
     this.childArray = [];
   }
 
+  /**
+  * Find a random Child Node
+  * @return {Node} child node
+  */
   getRandomChildNode() {
     return this.childArray[Math.floor(Math.random() * this.childArray.length)];
   }
@@ -44,11 +48,20 @@ class Board {
     this.totalMoves = 0;
   }
 
+  /**
+  * Add a move to the board
+  * @param {Number} player - the player number
+  * @param {Number} p - position of the move
+  */
   performMove(player, p) {
     this.totalMoves++;
     boardValues[p] = player;
   }
 
+  /**
+  * Finds all empty positions on a board
+  * @return {Array} possible moves
+  */
   getEmptyPositions() {
     let size = this.boardValues.length;
     let emptyPositions = [];
@@ -60,15 +73,18 @@ class Board {
     return emptyPositions;
   }
 
+  /**
+  * Checks status of the game
+  * @return {Number}
+  * -1  - game incomplete
+  *  0  - draw
+  *  1  - player 1 wins
+  *  2  - player 2 wins
+  */
   checkStatus() {
+    // all possible winning combinations in Tic Tac Toe
     let checks = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
-    let count = 0;
-    boardValues.forEach(elem => {
-      elem === 0 ? count++ : null;
-    })
-    if (count > 0) {
-      return -1;
-    }
+
     for (var i = 0; i < checks.length; i++) {
       let check = checks[i];
       function winner1(currentValue) {
@@ -84,6 +100,17 @@ class Board {
         return 2;
       }
     }
+
+    // if there are empty spaces the game is incomplete
+    let count = 0;
+    boardValues.forEach(elem => {
+      elem === 0 ? count++ : null;
+    })
+    if (count > 0) {
+      return -1;
+    }
+
+    // if there are no empty spaces, the game is a draw
     return 0;
   }
 }
@@ -95,6 +122,12 @@ class MonteCarloTreeSearch {
     this.opponent;
   }
 
+
+  /**
+  * Find best next move for player
+  * @param {Board} board - the current state of the board
+  * @param {Number} playerNo - player
+  */
   findNextMove(board, playerNo) {
     let opponent = 3 - playerNo;
     let tree = new Tree();
@@ -121,10 +154,69 @@ class MonteCarloTreeSearch {
   }
 }
 
+/**
+* Selection Phase
+* Starting with the root node, picks the node with the maximum win rate
+*/
+
+/**
+* Finds the most promising node
+* @param {Node} rootNode - the node we start out at
+* @return {Node} most promising node
+*/
+let selectPromisingNode = (rootNode) => {
+  let node = rootNode;
+  while (node.childArray.length !== 0) {
+    node = UCT.findBestNodeWithUCT(node);
+  }
+  return node;
+}
+
+let UCT = {
+
+  /**
+  * Calculate the UCT (Upper Confidence Bound) value of Node
+  * @param {Number} totalVisit - total number of simulations for the parent node
+  * @param {Number} nodeWinScore - number of wins after the i-th move
+  * @param {Number} nodeVisit - number of simulations after the i-th move
+  * @return {Number} UCT of Node
+  */
+  uctValue: (totalVisit, nodeWinScore, nodeVisit) => {
+    if (nodeVisit === 0) {
+      return Number.MAX_SAFE_INTEGER;
+    }
+    return (nodeWinScore / nodeVisit) + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit);
+  },
+
+  /**
+  * Find the child Node with the highest UCT
+  * @param {Node} node - current node
+  * @return {Node} most promising node
+  */
+  findBestNodeWithUCT: (node) => {
+    let parentVisit = node.state.visitCount;
+    let childUCT = [];
+
+    // Find the UCT of each child of the Array
+    node.childArray.forEach(child => {
+      childUCT.push(UCT.uctValue(parentVisit, child.state.winScore, child.state.visitCount))
+    })
+    
+    // Find the highest UCT value and index of value
+    var max = Math.max(...childUCT);
+    var idx = childUCT.indexOf(max);
+    return node.childArray[idx];
+  }
+}
+
+
+
 module.exports = {
   Node: Node,
   Tree: Tree,
   State: State,
   Board: Board,
-  MonteCarloTreeSearch: MonteCarloTreeSearch
+  MonteCarloTreeSearch: MonteCarloTreeSearch,
+  selectPromisingNode: selectPromisingNode,
+  UCT: UCT
 }
