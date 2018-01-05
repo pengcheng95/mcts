@@ -1,0 +1,17 @@
+{
+  "name": "tictactoe",
+  "version": "0.0.1",
+  "description": "MCTS Tic Tac Toe Implementation",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "Tic",
+    "Tac",
+    "Toe",
+    "MCTS"
+  ],
+  "author": "Max Peng",
+  "license": "ISC"
+}
