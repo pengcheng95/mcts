@@ -21,19 +21,47 @@ class Tree {
 }
 
 class State {
-  constructor() {
-    this.board;
+  constructor(board) {
+    this.board = board;
     this.playerNo;
     this.visitCount;
     this.winScore;
   }
 
+  /**
+  * Get all possible future states of a board
+  * @return {Array} all possible next move states
+  */
   getAllPossibleStates() {
+    let possibleStates = [];
+    let availablePositions = this.board.getEmptyPositions();
 
+    // create an array of all the possible states a board can become
+    availablePositions.forEach(p => {
+      let newState = new State(this.board);
+      newState.playerNo = 3 - this.playerNo;
+      newState.board.performMove(this.playerNo, p);
+      possibleStates.push(newState);
+    })
+
+    return possibleStates;
   }
 
+  /**
+  * Plays a random move on the board
+  */
   randomPlay() {
+    let availablePositions = this.board.getEmptyPositions();
+    let totalPossibilities = availablePositions.size;
+    let rdm = Math.floor(Math.random() * totalPossibilities);
+    this.board.performMove(this.playerNo, availablePositions[rdm]);
+  }
 
+  /**
+  * Changes the current player
+  */
+  togglePlayer() {
+    this.playerNo = 3 - this.playerNo;
   }
 }
 
@@ -201,13 +229,30 @@ let UCT = {
     node.childArray.forEach(child => {
       childUCT.push(UCT.uctValue(parentVisit, child.state.winScore, child.state.visitCount))
     })
-    
+
     // Find the highest UCT value and index of value
     var max = Math.max(...childUCT);
     var idx = childUCT.indexOf(max);
     return node.childArray[idx];
   }
 }
+
+
+/**
+* Recommendation Phase
+* Recommends a leaf node to be expanded upon
+*/
+
+/**
+* Find the child Node with the highest UCT
+* @param {Node} node - current node
+* @return {Node} most promising node
+*/
+let expandNode = (node) => {
+  let possibleStates = node.state.getAllPossibleStates();
+}
+
+
 
 
 
