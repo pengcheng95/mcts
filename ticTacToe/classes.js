@@ -181,16 +181,20 @@ class Board {
 
     for (var i = 0; i < checks.length; i++) {
       let check = checks[i];
+      let checkArr = [];
+      for (var j = 0; j < check.length; j++) {
+        checkArr.push(this.boardValues[check[j]]);
+      }
       function winner1(currentValue) {
         return currentValue === 1;
       }
       function winner2(currentValue) {
         return currentValue === 2;
       }
-      if (check.every(winner1)) {
+      if (checkArr.every(winner1)) {
         return 1;
       }
-      if (check.every(winner2)) {
+      if (checkArr.every(winner2)) {
         return 2;
       }
     }
