@@ -1,8 +1,25 @@
 class Node {
-  constructor() {
-    this.state;
-    this.parent;
-    this.childArray = [];
+  constructor(state, node) {
+    if (arguments.length === 1) {
+      this.state = state;
+      this.parent;
+      this.childArray = [];
+    } else if (arguments.length === 2) {
+      this.state = new State(null, node.state);
+      if (node.parent !== null) {
+        this.parent = node.parent;
+      }
+      this.childArray = [];
+      let childArray = node.childArray;
+      childArray.forEach(child => {
+        this.childArray.push(child);
+      })
+    } else {
+      this.state = new State();
+      this.parent;
+      this.childArray = [];
+    }
+
   }
 
   /**
@@ -12,20 +29,48 @@ class Node {
   getRandomChildNode() {
     return this.childArray[Math.floor(Math.random() * this.childArray.length)];
   }
+
+  getChildWithMaxScore() {
+    let arrScore = [];
+    for (var i = 0; i < this.childArray.length; i++ ) {
+      arrScore.push(this.childArray[i].state.visitCount);
+    }
+    var largest = Math.max(...arrScore);
+    var idx = arrScore.indexOf(largest);
+    // console.log(this.childArray);
+    return this.childArray[idx];
+  }
 }
 
 class Tree {
-  constructor() {
-    this.root;
+  constructor(node) {
+    if (arguments.length === 1) {
+      this.root = node;
+    } else {
+      this.root = new Node();
+    }
   }
 }
 
 class State {
-  constructor(board) {
-    this.board = board;
-    this.playerNo;
-    this.visitCount;
-    this.winScore;
+  constructor(board, state) {
+    if (arguments.length === 1) {
+      this.board = new Board(board);
+      this.playerNo;
+      this.visitCount = 0;
+      this.winScore = 10;
+    } else if (arguments.length === 2) {
+      this.board = new Board(state.board);
+      this.playerNo = state.playerNo;
+      this.visitCount = state.visitCount;
+      this.winScore = state.winScore;
+    } else {
+      this.board = new Board();
+      this.playerNo;
+      this.visitCount = 0;
+      this.winScore = 10;
+    }
+
   }
 
   /**
@@ -63,16 +108,37 @@ class State {
   togglePlayer() {
     this.playerNo = 3 - this.playerNo;
   }
+
+  /**
+  * Returns the opponent
+  */
+  getOpponent() {
+    return 3 - this.playerNo;
+  }
+
+  addScore(score) {
+    if (this.winScore !== Number.MIN_SAFE_INTEGER) {
+      this.winScore += score;
+    }
+  }
 }
 
 class Board {
-  constructor() {
-    this.boardValues = [];
+  //need to work on
+  constructor(board) {
+    if (arguments.length === 1) {
+      this.boardValues = board.boardValues;
+    } else {
+      this.boardValues = new Array(9);
+      for (var i = 0; i < this.boardValues.length; i++) {
+        this.boardValues[i] = 0;
+      }
+    }
     this.DEFAULT_BOARD_SIZE = 3;
     this.IN_PROGRESS = -1;
     this.DRAW = 0;
     this.P1 = 1;
-    this.P2 = 1;
+    this.P2 = 2;
     this.totalMoves = 0;
   }
 
@@ -83,7 +149,7 @@ class Board {
   */
   performMove(player, p) {
     this.totalMoves++;
-    boardValues[p] = player;
+    this.boardValues[p] = player;
   }
 
   /**
@@ -94,7 +160,7 @@ class Board {
     let size = this.boardValues.length;
     let emptyPositions = [];
     for (var i = 0; i < size; i++) {
-      if (boardValues[i] === 0) {
+      if (this.boardValues[i] === 0) {
         emptyPositions.push(i);
       }
     }
@@ -129,13 +195,20 @@ class Board {
       }
     }
 
+
     // if there are empty spaces the game is incomplete
-    let count = 0;
-    boardValues.forEach(elem => {
-      elem === 0 ? count++ : null;
-    })
-    if (count > 0) {
-      return -1;
+    // let count = 0;
+    // boardValues.forEach(elem => {
+    //   elem === 0 ? count++ : null;
+    // })
+    // if (count > 0) {
+    //   return -1;
+    // }
+    function incomplete(elem) {
+      return elem === 0;
+    }
+    if(this.boardValues.some(incomplete)) {
+      return -1
     }
 
     // if there are no empty spaces, the game is a draw
@@ -143,12 +216,12 @@ class Board {
   }
 }
 
-class MonteCarloTreeSearch {
-  constructor() {
-    this.WIN_SCORE = 10;
-    this.level;
-    this.opponent;
-  }
+let MonteCarloTreeSearch = {
+  // constructor() {
+  //   this.WIN_SCORE = 10;
+  //   this.level;
+  //   this.opponent;
+  // }
 
 
   /**
@@ -156,7 +229,7 @@ class MonteCarloTreeSearch {
   * @param {Board} board - the current state of the board
   * @param {Number} playerNo - player
   */
-  findNextMove(board, playerNo) {
+  findNextMove: (board, playerNo) => {
     let opponent = 3 - playerNo;
     let tree = new Tree();
     let rootNode = tree.root;
@@ -165,7 +238,7 @@ class MonteCarloTreeSearch {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 500) {
+    while ((Date.now() - startTime) < 1) {
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
       if (promisingNode.state.board.checkStatus() === board.IN_PROGRESS) {
@@ -175,10 +248,13 @@ class MonteCarloTreeSearch {
       if (nodeToExplore.childArray.length > 0) {
         nodeToExplore = promisingNode.getRandomChildNode();
       }
-      let playoutResult = simulateRandomPlayout(nodeToExplore);
+      let playoutResult = simulateRandomPlayout(nodeToExplore, opponent);
       backPropogation(nodeToExplore, playoutResult);
     }
 
+    let winnerNode = rootNode.getChildWithMaxScore();
+    tree.root = winnerNode;
+    return winnerNode.state.board;
   }
 }
 
@@ -194,8 +270,11 @@ class MonteCarloTreeSearch {
 */
 let selectPromisingNode = (rootNode) => {
   let node = rootNode;
+  // console.log('test', node);
   while (node.childArray.length !== 0) {
+    // console.log('inside', node);
     node = UCT.findBestNodeWithUCT(node);
+    // console.log('node after', node);
   }
   return node;
 }
@@ -213,6 +292,7 @@ let UCT = {
     if (nodeVisit === 0) {
       return Number.MAX_SAFE_INTEGER;
     }
+    // console.log(totalVisit, nodeWinScore, nodeVisit);
     return (nodeWinScore / nodeVisit) + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit);
   },
 
@@ -222,6 +302,7 @@ let UCT = {
   * @return {Node} most promising node
   */
   findBestNodeWithUCT: (node) => {
+    // console.log(node.childArray);
     let parentVisit = node.state.visitCount;
     let childUCT = [];
 
@@ -229,7 +310,7 @@ let UCT = {
     node.childArray.forEach(child => {
       childUCT.push(UCT.uctValue(parentVisit, child.state.winScore, child.state.visitCount))
     })
-
+    // console.log('childUCT', childUCT);
     // Find the highest UCT value and index of value
     var max = Math.max(...childUCT);
     var idx = childUCT.indexOf(max);
@@ -250,6 +331,47 @@ let UCT = {
 */
 let expandNode = (node) => {
   let possibleStates = node.state.getAllPossibleStates();
+
+  possibleStates.forEach(state => {
+    let newNode = new Node(state);
+    newNode.parent = node;
+    newNode.state.playerNo = node.state.getOpponent();
+    node.childArray.push(newNode);
+  })
+}
+
+/**
+* Proprogate function to update socre and visit count from leaf to root
+* @param {Node} nodeToExplore - node coming back from
+* @param {Number} playerNo - player whose turn it is
+*/
+let backPropogation = (nodeToExplore, playerNo) => {
+  let tempNode = nodeToExplore;
+  // console.log(tempNode);
+  while (tempNode !== undefined) {
+    // console.log(tempNode);
+    tempNode.state.visitCount++;
+    if (tempNode.state.playerNo === playerNo) {
+      tempNode.state.addScore(10);
+    }
+    tempNode = tempNode.parent;
+  }
+}
+
+let simulateRandomPlayout = (node, opponent) => {
+  let tempNode = new Node(null, node);
+  let tempState = tempNode.state;
+  let boardStatus = tempState.board.checkStatus();
+  if (boardStatus === opponent) {
+    tempNode.parent.state.winScore = Number.MIN_SAFE_INTEGER;
+    return boardStatus;
+  }
+  while (boardStatus === -1) {
+    tempState.togglePlayer();
+    tempState.randomPlay();
+    boardStatus = tempState.board.checkStatus();
+  }
+  return boardStatus;
 }
 
 
@@ -263,5 +385,8 @@ module.exports = {
   Board: Board,
   MonteCarloTreeSearch: MonteCarloTreeSearch,
   selectPromisingNode: selectPromisingNode,
-  UCT: UCT
+  UCT: UCT,
+  expandNode: expandNode,
+  backPropogation: backPropogation,
+  simulateRandomPlayout: simulateRandomPlayout
 }
