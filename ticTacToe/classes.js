@@ -10,8 +10,8 @@ class Node {
         this.parent = node.parent;
       }
       this.childArray = [];
-      let childArray = node.childArray;
-      childArray.forEach(child => {
+      // let childArray = node.childArray;
+      this.childArray.forEach(child => {
         this.childArray.push(child);
       })
     } else {
@@ -97,9 +97,10 @@ class State {
    */
   randomPlay() {
     let availablePositions = this.board.getEmptyPositions();
-    let totalPossibilities = availablePositions.size;
+    let totalPossibilities = availablePositions.length;
     let rdm = Math.floor(Math.random() * totalPossibilities);
     this.board.performMove(this.playerNo, availablePositions[rdm]);
+    console.log(availablePositions, totalPossibilities, this.playerNo);
   }
 
   /**
@@ -254,7 +255,7 @@ let MonteCarloTreeSearch = {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 100) {
+    while ((Date.now() - startTime) < 1000) {
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
       if (promisingNode.state.board.checkStatus() === board.IN_PROGRESS) {
@@ -378,9 +379,11 @@ let backPropogation = (nodeToExplore, playerNo) => {
 }
 
 let simulateRandomPlayout = (node, opponent) => {
+
   let tempNode = new Node(null, node);
   let tempState = tempNode.state;
   let boardStatus = tempState.board.checkStatus();
+  console.log('in simulate', tempNode, boardStatus)
   if (boardStatus === opponent) {
     tempNode.parent.state.winScore = Number.MIN_SAFE_INTEGER;
     return boardStatus;
@@ -389,6 +392,7 @@ let simulateRandomPlayout = (node, opponent) => {
     tempState.togglePlayer();
     tempState.randomPlay();
     boardStatus = tempState.board.checkStatus();
+    console.log('tempState');
   }
   return boardStatus;
 }
