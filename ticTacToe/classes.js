@@ -23,16 +23,16 @@ class Node {
   }
 
   /**
-  * Find a random Child Node
-  * @return {Node} child node
-  */
+   * Find a random Child Node
+   * @return {Node} child node
+   */
   getRandomChildNode() {
     return this.childArray[Math.floor(Math.random() * this.childArray.length)];
   }
 
   getChildWithMaxScore() {
     let arrScore = [];
-    for (var i = 0; i < this.childArray.length; i++ ) {
+    for (var i = 0; i < this.childArray.length; i++) {
       arrScore.push(this.childArray[i].state.visitCount);
     }
     var largest = Math.max(...arrScore);
@@ -74,9 +74,9 @@ class State {
   }
 
   /**
-  * Get all possible future states of a board
-  * @return {Array} all possible next move states
-  */
+   * Get all possible future states of a board
+   * @return {Array} all possible next move states
+   */
   getAllPossibleStates() {
     let possibleStates = [];
     let availablePositions = this.board.getEmptyPositions();
@@ -93,8 +93,8 @@ class State {
   }
 
   /**
-  * Plays a random move on the board
-  */
+   * Plays a random move on the board
+   */
   randomPlay() {
     let availablePositions = this.board.getEmptyPositions();
     let totalPossibilities = availablePositions.size;
@@ -103,15 +103,15 @@ class State {
   }
 
   /**
-  * Changes the current player
-  */
+   * Changes the current player
+   */
   togglePlayer() {
     this.playerNo = 3 - this.playerNo;
   }
 
   /**
-  * Returns the opponent
-  */
+   * Returns the opponent
+   */
   getOpponent() {
     return 3 - this.playerNo;
   }
@@ -127,7 +127,7 @@ class Board {
   //need to work on
   constructor(board) {
     if (arguments.length === 1) {
-      this.boardValues = board.boardValues;
+      this.boardValues = board.boardValues.slice();
     } else {
       this.boardValues = new Array(9);
       for (var i = 0; i < this.boardValues.length; i++) {
@@ -143,19 +143,19 @@ class Board {
   }
 
   /**
-  * Add a move to the board
-  * @param {Number} player - the player number
-  * @param {Number} p - position of the move
-  */
+   * Add a move to the board
+   * @param {Number} player - the player number
+   * @param {Number} p - position of the move
+   */
   performMove(player, p) {
     this.totalMoves++;
     this.boardValues[p] = player;
   }
 
   /**
-  * Finds all empty positions on a board
-  * @return {Array} possible moves
-  */
+   * Finds all empty positions on a board
+   * @return {Array} possible moves
+   */
   getEmptyPositions() {
     let size = this.boardValues.length;
     let emptyPositions = [];
@@ -168,26 +168,38 @@ class Board {
   }
 
   /**
-  * Checks status of the game
-  * @return {Number}
-  * -1  - game incomplete
-  *  0  - draw
-  *  1  - player 1 wins
-  *  2  - player 2 wins
-  */
+   * Checks status of the game
+   * @return {Number}
+   * -1  - game incomplete
+   *  0  - draw
+   *  1  - player 1 wins
+   *  2  - player 2 wins
+   */
   checkStatus() {
     // all possible winning combinations in Tic Tac Toe
-    let checks = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+    let checks = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
 
     for (var i = 0; i < checks.length; i++) {
       let check = checks[i];
       let checkArr = [];
+      // console.log(i);
       for (var j = 0; j < check.length; j++) {
         checkArr.push(this.boardValues[check[j]]);
       }
+
       function winner1(currentValue) {
         return currentValue === 1;
       }
+
       function winner2(currentValue) {
         return currentValue === 2;
       }
@@ -211,7 +223,7 @@ class Board {
     function incomplete(elem) {
       return elem === 0;
     }
-    if(this.boardValues.some(incomplete)) {
+    if (this.boardValues.some(incomplete)) {
       return -1
     }
 
@@ -229,20 +241,20 @@ let MonteCarloTreeSearch = {
 
 
   /**
-  * Find best next move for player
-  * @param {Board} board - the current state of the board
-  * @param {Number} playerNo - player
-  */
+   * Find best next move for player
+   * @param {Board} board - the current state of the board
+   * @param {Number} playerNo - player
+   */
   findNextMove: (board, playerNo) => {
     let opponent = 3 - playerNo;
     let tree = new Tree();
     let rootNode = tree.root;
-    rootNode.state.board = board;
+    rootNode.state.board = new Board(board);
     rootNode.state.playerNo = opponent;
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 1) {
+    while ((Date.now() - startTime) < 100) {
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
       if (promisingNode.state.board.checkStatus() === board.IN_PROGRESS) {
@@ -252,26 +264,29 @@ let MonteCarloTreeSearch = {
       if (nodeToExplore.childArray.length > 0) {
         nodeToExplore = promisingNode.getRandomChildNode();
       }
+      //not getting past simulate randomPlayout
       let playoutResult = simulateRandomPlayout(nodeToExplore, opponent);
+      console.log('got here');
       backPropogation(nodeToExplore, playoutResult);
     }
 
     let winnerNode = rootNode.getChildWithMaxScore();
+    console.log(rootNode.state);
     tree.root = winnerNode;
     return winnerNode.state.board;
   }
 }
 
 /**
-* Selection Phase
-* Starting with the root node, picks the node with the maximum win rate
-*/
+ * Selection Phase
+ * Starting with the root node, picks the node with the maximum win rate
+ */
 
 /**
-* Finds the most promising node
-* @param {Node} rootNode - the node we start out at
-* @return {Node} most promising node
-*/
+ * Finds the most promising node
+ * @param {Node} rootNode - the node we start out at
+ * @return {Node} most promising node
+ */
 let selectPromisingNode = (rootNode) => {
   let node = rootNode;
   // console.log('test', node);
@@ -286,12 +301,12 @@ let selectPromisingNode = (rootNode) => {
 let UCT = {
 
   /**
-  * Calculate the UCT (Upper Confidence Bound) value of Node
-  * @param {Number} totalVisit - total number of simulations for the parent node
-  * @param {Number} nodeWinScore - number of wins after the i-th move
-  * @param {Number} nodeVisit - number of simulations after the i-th move
-  * @return {Number} UCT of Node
-  */
+   * Calculate the UCT (Upper Confidence Bound) value of Node
+   * @param {Number} totalVisit - total number of simulations for the parent node
+   * @param {Number} nodeWinScore - number of wins after the i-th move
+   * @param {Number} nodeVisit - number of simulations after the i-th move
+   * @return {Number} UCT of Node
+   */
   uctValue: (totalVisit, nodeWinScore, nodeVisit) => {
     if (nodeVisit === 0) {
       return Number.MAX_SAFE_INTEGER;
@@ -301,10 +316,10 @@ let UCT = {
   },
 
   /**
-  * Find the child Node with the highest UCT
-  * @param {Node} node - current node
-  * @return {Node} most promising node
-  */
+   * Find the child Node with the highest UCT
+   * @param {Node} node - current node
+   * @return {Node} most promising node
+   */
   findBestNodeWithUCT: (node) => {
     // console.log(node.childArray);
     let parentVisit = node.state.visitCount;
@@ -324,15 +339,15 @@ let UCT = {
 
 
 /**
-* Recommendation Phase
-* Recommends a leaf node to be expanded upon
-*/
+ * Recommendation Phase
+ * Recommends a leaf node to be expanded upon
+ */
 
 /**
-* Find the child Node with the highest UCT
-* @param {Node} node - current node
-* @return {Node} most promising node
-*/
+ * Find the child Node with the highest UCT
+ * @param {Node} node - current node
+ * @return {Node} most promising node
+ */
 let expandNode = (node) => {
   let possibleStates = node.state.getAllPossibleStates();
 
@@ -345,10 +360,10 @@ let expandNode = (node) => {
 }
 
 /**
-* Proprogate function to update socre and visit count from leaf to root
-* @param {Node} nodeToExplore - node coming back from
-* @param {Number} playerNo - player whose turn it is
-*/
+ * Proprogate function to update socre and visit count from leaf to root
+ * @param {Node} nodeToExplore - node coming back from
+ * @param {Number} playerNo - player whose turn it is
+ */
 let backPropogation = (nodeToExplore, playerNo) => {
   let tempNode = nodeToExplore;
   // console.log(tempNode);

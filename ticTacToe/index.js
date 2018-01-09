@@ -22,6 +22,7 @@ let simulatePlay = () => {
     board = mcts.findNextMove(board, player);
     console.log(board);
     if (board.checkStatus() !== -1) {
+      console.log('get here?');
       break;
     }
     player = 3 - player;
