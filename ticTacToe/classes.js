@@ -37,7 +37,6 @@ class Node {
     }
     var largest = Math.max(...arrScore);
     var idx = arrScore.indexOf(largest);
-    // console.log(this.childArray);
     return this.childArray[idx];
   }
 }
@@ -100,7 +99,6 @@ class State {
     let totalPossibilities = availablePositions.length;
     let rdm = Math.floor(Math.random() * totalPossibilities);
     this.board.performMove(this.playerNo, availablePositions[rdm]);
-    console.log(availablePositions, totalPossibilities, this.playerNo);
   }
 
   /**
@@ -192,7 +190,6 @@ class Board {
     for (var i = 0; i < checks.length; i++) {
       let check = checks[i];
       let checkArr = [];
-      // console.log(i);
       for (var j = 0; j < check.length; j++) {
         checkArr.push(this.boardValues[check[j]]);
       }
@@ -255,9 +252,11 @@ let MonteCarloTreeSearch = {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 1000) {
+    // while ((Date.now() - startTime) < 10) {
+    for (var i = 0; i < 3; i++) {
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
+      console.log('promisingNode', promisingNode);
       if (promisingNode.state.board.checkStatus() === board.IN_PROGRESS) {
         expandNode(promisingNode);
       }
@@ -265,14 +264,11 @@ let MonteCarloTreeSearch = {
       if (nodeToExplore.childArray.length > 0) {
         nodeToExplore = promisingNode.getRandomChildNode();
       }
-      //not getting past simulate randomPlayout
       let playoutResult = simulateRandomPlayout(nodeToExplore, opponent);
-      console.log('got here');
       backPropogation(nodeToExplore, playoutResult);
     }
 
     let winnerNode = rootNode.getChildWithMaxScore();
-    console.log(rootNode.state);
     tree.root = winnerNode;
     return winnerNode.state.board;
   }
@@ -283,6 +279,8 @@ let MonteCarloTreeSearch = {
  * Starting with the root node, picks the node with the maximum win rate
  */
 
+ var num = 0;
+
 /**
  * Finds the most promising node
  * @param {Node} rootNode - the node we start out at
@@ -290,12 +288,11 @@ let MonteCarloTreeSearch = {
  */
 let selectPromisingNode = (rootNode) => {
   let node = rootNode;
-  // console.log('test', node);
   while (node.childArray.length !== 0) {
-    // console.log('inside', node);
     node = UCT.findBestNodeWithUCT(node);
-    // console.log('node after', node);
+    num++;
   }
+  // console.log('num', num);
   return node;
 }
 
@@ -312,7 +309,6 @@ let UCT = {
     if (nodeVisit === 0) {
       return Number.MAX_SAFE_INTEGER;
     }
-    // console.log(totalVisit, nodeWinScore, nodeVisit);
     return (nodeWinScore / nodeVisit) + 1.41 * Math.sqrt(Math.log(totalVisit) / nodeVisit);
   },
 
@@ -322,7 +318,6 @@ let UCT = {
    * @return {Node} most promising node
    */
   findBestNodeWithUCT: (node) => {
-    // console.log(node.childArray);
     let parentVisit = node.state.visitCount;
     let childUCT = [];
 
@@ -330,9 +325,10 @@ let UCT = {
     node.childArray.forEach(child => {
       childUCT.push(UCT.uctValue(parentVisit, child.state.winScore, child.state.visitCount))
     })
-    // console.log('childUCT', childUCT);
     // Find the highest UCT value and index of value
+    console.log('childUCt', childUCT);
     var max = Math.max(...childUCT);
+    console.log(max);
     var idx = childUCT.indexOf(max);
     return node.childArray[idx];
   }
@@ -351,7 +347,7 @@ let UCT = {
  */
 let expandNode = (node) => {
   let possibleStates = node.state.getAllPossibleStates();
-
+  console.log('possbile states', possibleStates);
   possibleStates.forEach(state => {
     let newNode = new Node(state);
     newNode.parent = node;
@@ -383,7 +379,7 @@ let simulateRandomPlayout = (node, opponent) => {
   let tempNode = new Node(null, node);
   let tempState = tempNode.state;
   let boardStatus = tempState.board.checkStatus();
-  console.log('in simulate', tempNode, boardStatus)
+  // console.log('in simulate', tempNode, boardStatus)
   if (boardStatus === opponent) {
     tempNode.parent.state.winScore = Number.MIN_SAFE_INTEGER;
     return boardStatus;
@@ -392,7 +388,7 @@ let simulateRandomPlayout = (node, opponent) => {
     tempState.togglePlayer();
     tempState.randomPlay();
     boardStatus = tempState.board.checkStatus();
-    console.log('tempState');
+    // console.log('tempState');
   }
   return boardStatus;
 }

@@ -18,7 +18,7 @@ let simulatePlay = () => {
   let player = 1;
   let totalMoves = 9;
   console.log('start', board);
-  for (var i = 0; i < totalMoves; i++) {
+  for (var i = 0; i < 9; i++) {
     board = mcts.findNextMove(board, player);
     console.log(board);
     if (board.checkStatus() !== -1) {
