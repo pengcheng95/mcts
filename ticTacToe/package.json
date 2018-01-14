@@ -4,7 +4,7 @@
   "description": "MCTS Tic Tac Toe Implementation",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "start": "node index.js"
   },
   "keywords": [
     "Tic",
@@ -13,5 +13,10 @@
     "MCTS"
   ],
   "author": "Max Peng",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "path": "^0.12.7"
+  }
 }

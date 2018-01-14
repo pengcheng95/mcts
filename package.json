@@ -1,0 +1,23 @@
+{
+  "name": "mcts",
+  "version": "1.0.0",
+  "description": "Monto Carlo Tree Search for different games",
+  "main": "index.js",
+  "scripts": {
+    "tictactoeTest": "node ./ticTacToe/test.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pengcheng95/mcts.git"
+  },
+  "keywords": [
+    "mcts"
+  ],
+  "author": "Max Peng",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pengcheng95/mcts/issues"
+  },
+  "homepage": "https://github.com/pengcheng95/mcts#readme"
+}

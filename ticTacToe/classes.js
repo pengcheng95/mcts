@@ -253,8 +253,7 @@ let MonteCarloTreeSearch = {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 10000) {
-    // for (var i = 0; i < 3; i++) {
+    while ((Date.now() - startTime) < 1000) {
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
       // console.log('promisingNode', promisingNode);
