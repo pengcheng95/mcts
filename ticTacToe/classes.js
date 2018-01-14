@@ -11,7 +11,7 @@ class Node {
       }
       this.childArray = [];
       // let childArray = node.childArray;
-      this.childArray.forEach(child => {
+      node.childArray.forEach(child => {
         this.childArray.push(child);
       })
     } else {
@@ -252,8 +252,8 @@ let MonteCarloTreeSearch = {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    // while ((Date.now() - startTime) < 10) {
-    for (var i = 0; i < 3; i++) {
+    while ((Date.now() - startTime) < 1000) {
+    // for (var i = 0; i < 3; i++) {
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
       console.log('promisingNode', promisingNode);
