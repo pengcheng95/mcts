@@ -6,13 +6,13 @@ class Node {
       this.childArray = [];
     } else if (arguments.length === 2) {
       this.state = new State(null, node.state);
-      if (node.parent !== null) {
+      if (node.parent !== (null || undefined)) {
         this.parent = node.parent;
       }
       this.childArray = [];
       // let childArray = node.childArray;
       node.childArray.forEach(child => {
-        this.childArray.push(child);
+        this.childArray.push(new Node(null, child));
       })
     } else {
       this.state = new State();
@@ -35,6 +35,7 @@ class Node {
     for (var i = 0; i < this.childArray.length; i++) {
       arrScore.push(this.childArray[i].state.visitCount);
     }
+    console.log(arrScore);
     var largest = Math.max(...arrScore);
     var idx = arrScore.indexOf(largest);
     return this.childArray[idx];
@@ -84,7 +85,7 @@ class State {
     availablePositions.forEach(p => {
       let newState = new State(this.board);
       newState.playerNo = 3 - this.playerNo;
-      newState.board.performMove(this.playerNo, p);
+      newState.board.performMove(newState.playerNo, p);
       possibleStates.push(newState);
     })
 
@@ -252,11 +253,11 @@ let MonteCarloTreeSearch = {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 1000) {
+    while ((Date.now() - startTime) < 10000) {
     // for (var i = 0; i < 3; i++) {
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
-      console.log('promisingNode', promisingNode);
+      // console.log('promisingNode', promisingNode);
       if (promisingNode.state.board.checkStatus() === board.IN_PROGRESS) {
         expandNode(promisingNode);
       }
@@ -326,9 +327,9 @@ let UCT = {
       childUCT.push(UCT.uctValue(parentVisit, child.state.winScore, child.state.visitCount))
     })
     // Find the highest UCT value and index of value
-    console.log('childUCt', childUCT);
+    // console.log('childUCt', childUCT);
     var max = Math.max(...childUCT);
-    console.log(max);
+    // console.log(max);
     var idx = childUCT.indexOf(max);
     return node.childArray[idx];
   }
@@ -347,7 +348,7 @@ let UCT = {
  */
 let expandNode = (node) => {
   let possibleStates = node.state.getAllPossibleStates();
-  console.log('possbile states', possibleStates);
+  // console.log('possbile states', possibleStates);
   possibleStates.forEach(state => {
     let newNode = new Node(state);
     newNode.parent = node;
