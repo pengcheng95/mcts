@@ -250,10 +250,13 @@ let MonteCarloTreeSearch = {
     let rootNode = tree.root;
     rootNode.state.board = new Board(board);
     rootNode.state.playerNo = opponent;
+    console.log(rootNode);
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 1000) {
+    // while ((Date.now() - startTime) < 1000) {
+    for (var i = 0; i < 12; i++) {
+      console.log('running test: ', i)
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
       // console.log('promisingNode', promisingNode);
@@ -279,8 +282,6 @@ let MonteCarloTreeSearch = {
  * Starting with the root node, picks the node with the maximum win rate
  */
 
- var num = 0;
-
 /**
  * Finds the most promising node
  * @param {Node} rootNode - the node we start out at
@@ -288,11 +289,11 @@ let MonteCarloTreeSearch = {
  */
 let selectPromisingNode = (rootNode) => {
   let node = rootNode;
+  console.log('node.childArray: ', node.childArray);
   while (node.childArray.length !== 0) {
+    console.log('DOES IT EVER GET HERE?');
     node = UCT.findBestNodeWithUCT(node);
-    num++;
   }
-  // console.log('num', num);
   return node;
 }
 
@@ -325,6 +326,7 @@ let UCT = {
     node.childArray.forEach(child => {
       childUCT.push(UCT.uctValue(parentVisit, child.state.winScore, child.state.visitCount))
     })
+    console.log('childUCT', childUCT);
     // Find the highest UCT value and index of value
     // console.log('childUCt', childUCT);
     var max = Math.max(...childUCT);
