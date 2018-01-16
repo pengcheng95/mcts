@@ -210,15 +210,6 @@ class Board {
       }
     }
 
-
-    // if there are empty spaces the game is incomplete
-    // let count = 0;
-    // boardValues.forEach(elem => {
-    //   elem === 0 ? count++ : null;
-    // })
-    // if (count > 0) {
-    //   return -1;
-    // }
     function incomplete(elem) {
       return elem === 0;
     }
@@ -254,12 +245,10 @@ let MonteCarloTreeSearch = {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    // while ((Date.now() - startTime) < 1000) {
-    for (var i = 0; i < 12; i++) {
+    while ((Date.now() - startTime) < 500) {
       console.log('running test: ', i)
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
-      // console.log('promisingNode', promisingNode);
       if (promisingNode.state.board.checkStatus() === board.IN_PROGRESS) {
         expandNode(promisingNode);
       }
@@ -291,7 +280,6 @@ let selectPromisingNode = (rootNode) => {
   let node = rootNode;
   console.log('node.childArray: ', node.childArray);
   while (node.childArray.length !== 0) {
-    console.log('DOES IT EVER GET HERE?');
     node = UCT.findBestNodeWithUCT(node);
   }
   return node;
@@ -370,7 +358,7 @@ let backPropogation = (nodeToExplore, playerNo) => {
     // console.log(tempNode);
     tempNode.state.visitCount++;
     if (tempNode.state.playerNo === playerNo) {
-      tempNode.state.addScore(10);
+      tempNode.state.addScore(1);
     }
     tempNode = tempNode.parent;
   }
