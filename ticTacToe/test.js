@@ -13,11 +13,11 @@ const simulateRandomPlayout = classes.simulateRandomPlayout;
 
 // console.log(classes);
 
-let simulatePlay = () => {
+let simulateAiPlay = () => {
   let board = new Board();
   let player = 1;
   let totalMoves = 9;
-  for (var i = 0; i < 1; i++) {
+  for (var i = 0; i < 9; i++) {
     board = mcts.findNextMove(board, player);
     console.log(board);
     if (board.checkStatus() !== -1) {
@@ -26,12 +26,18 @@ let simulatePlay = () => {
     player = 3 - player;
   }
   let winStatus = board.checkStatus();
+  return winStatus;
   console.log('win status: ', winStatus);
 }
 
+var ct = 0;
 
+for (var i = 0; i < 50; i++) {
+  var x = simulateAiPlay();
+  x === 0 ? ct++ : null;
+}
 
-simulatePlay();
+console.log('ct: ', ct);
 
 
 

@@ -35,7 +35,7 @@ class Node {
     for (var i = 0; i < this.childArray.length; i++) {
       arrScore.push(this.childArray[i].state.visitCount);
     }
-    console.log(arrScore);
+    // console.log(arrScore);
     var largest = Math.max(...arrScore);
     var idx = arrScore.indexOf(largest);
     return this.childArray[idx];
@@ -241,12 +241,11 @@ let MonteCarloTreeSearch = {
     let rootNode = tree.root;
     rootNode.state.board = new Board(board);
     rootNode.state.playerNo = opponent;
-    console.log(rootNode);
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 500) {
-      console.log('running test: ', i)
+    while ((Date.now() - startTime) < 1000) {
+      // console.log('running test: ', i)
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
       if (promisingNode.state.board.checkStatus() === board.IN_PROGRESS) {
@@ -278,7 +277,7 @@ let MonteCarloTreeSearch = {
  */
 let selectPromisingNode = (rootNode) => {
   let node = rootNode;
-  console.log('node.childArray: ', node.childArray);
+  // console.log('node.childArray: ', node.childArray);
   while (node.childArray.length !== 0) {
     node = UCT.findBestNodeWithUCT(node);
   }
@@ -314,7 +313,7 @@ let UCT = {
     node.childArray.forEach(child => {
       childUCT.push(UCT.uctValue(parentVisit, child.state.winScore, child.state.visitCount))
     })
-    console.log('childUCT', childUCT);
+    // console.log('childUCT', childUCT);
     // Find the highest UCT value and index of value
     // console.log('childUCt', childUCT);
     var max = Math.max(...childUCT);
@@ -369,7 +368,7 @@ let simulateRandomPlayout = (node, opponent) => {
   let tempNode = new Node(null, node);
   let tempState = tempNode.state;
   let boardStatus = tempState.board.checkStatus();
-  // console.log('in simulate', tempNode, boardStatus)
+
   if (boardStatus === opponent) {
     tempNode.parent.state.winScore = Number.MIN_SAFE_INTEGER;
     return boardStatus;
