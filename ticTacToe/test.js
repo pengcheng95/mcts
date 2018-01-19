@@ -11,7 +11,7 @@ const backPropogation = classes.backPropogation;
 const simulateRandomPlayout = classes.simulateRandomPlayout;
 
 
-// console.log(classes);
+console.log('jabroni');
 
 let simulateAiPlay = () => {
   let board = new Board();
