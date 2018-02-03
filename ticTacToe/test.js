@@ -11,14 +11,12 @@ const backPropogation = classes.backPropogation;
 const simulateRandomPlayout = classes.simulateRandomPlayout;
 
 
-console.log('jabroni');
-
 let simulateAiPlay = () => {
   let board = new Board();
   let player = 1;
   let totalMoves = 9;
   for (var i = 0; i < 9; i++) {
-    board = mcts.findNextMove(board, player);
+    board = mcts.findNextMove(board, player, 50);
     console.log(board);
     if (board.checkStatus() !== -1) {
       break;

@@ -235,7 +235,7 @@ let MonteCarloTreeSearch = {
    * @param {Board} board - the current state of the board
    * @param {Number} playerNo - player
    */
-  findNextMove: (board, playerNo) => {
+  findNextMove: (board, playerNo, time) => {
     let opponent = 3 - playerNo;
     let tree = new Tree();
     let rootNode = tree.root;
@@ -244,7 +244,11 @@ let MonteCarloTreeSearch = {
 
     // while loop runs for 500 milliseconds
     let startTime = Date.now();
-    while ((Date.now() - startTime) < 1000) {
+    let runtime = time || 100
+    console.log('runtime: ', runtime);
+    console.log('tree: ', JSON.stringify(tree.root));
+    while ((Date.now() - startTime) < (runtime)) {
+      // console.log('running');
       // console.log('running test: ', i)
       let promisingNode = selectPromisingNode(rootNode);
       // if status of board is -1, game has not finished yet
